@@ -56,12 +56,15 @@ fn main() -> Result<(), EvalError> {
         Stmt::Func(
             "new_fn".to_string(),
             vec!["s".to_string()],
-            vec![Stmt::Print(Expr::Var("s".into()))],
+            vec![Stmt::Return(35.into()), Stmt::Print(Expr::Var("s".into()))],
         ),
-        Stmt::Block(vec![Stmt::Expr(Expr::Call(
-            "new_fn".to_string(),
-            vec![20.into()],
-        ))]), // Stmt::Exit(2.into()),
+        Stmt::Block(vec![
+            Stmt::Assign(
+                "y".to_string(),
+                Expr::Call("new_fn".to_string(), vec![20.into()]),
+            ),
+            Stmt::Print(Expr::Var("y".into())),
+        ]), // Stmt::Exit(2.into()),
     ];
     let printer = Printer::new(&program);
     println!("Original Program:\n{}", printer);

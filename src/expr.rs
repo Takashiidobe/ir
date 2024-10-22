@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::value::Value;
+use crate::{stmt::Stmt, value::Value};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Expr {
@@ -15,6 +15,7 @@ pub enum Expr {
     Or(Box<Expr>, Box<Expr>),
     Var(String),
     Call(String, Vec<Expr>),
+    FnBody(Vec<Stmt>),
 }
 
 impl fmt::Display for Expr {
@@ -41,6 +42,7 @@ impl fmt::Display for Expr {
                 s.push_str(")");
                 f.write_str(&s)
             }
+            Expr::FnBody(body) => f.write_fmt(format_args!("{body:?}")),
         }
     }
 }

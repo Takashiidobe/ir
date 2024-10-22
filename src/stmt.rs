@@ -11,6 +11,7 @@ pub enum Stmt {
     Block(Vec<Stmt>),
     Assign(String, Expr),
     Func(String, Vec<String>, Vec<Stmt>),
+    Return(Expr),
 }
 
 impl fmt::Display for Stmt {
@@ -38,7 +39,7 @@ impl fmt::Display for Stmt {
                 s.push_str(" }");
                 f.write_str(&s)
             }
-            Stmt::Assign(name, expr) => f.write_fmt(format_args!("let {name} = {expr};")),
+            Stmt::Assign(name, expr) => f.write_fmt(format_args!("let {name} = {expr}")),
             Stmt::Func(name, args, body) => {
                 let mut s = format!("fn {name}(");
                 for arg in args {
@@ -56,6 +57,7 @@ impl fmt::Display for Stmt {
                 s.push_str("}");
                 f.write_str(&s)
             }
+            Stmt::Return(expr) => f.write_fmt(format_args!("return {expr}")),
         }
     }
 }

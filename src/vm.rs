@@ -71,55 +71,65 @@ impl<V: Clone> Default for Env<V> {
 impl VM {
     pub fn eval(&mut self, instructions: &[Stmt]) -> Result<Self, EvalError> {
         for stmt in instructions {
-            match stmt {
-                Stmt::Exit(expr) => {
-                    let expr = self.eval_expr(expr)?;
-                    match expr {
-                        Expr::Literal(Value::Num(n)) => exit(n as i32),
-                        _ => {
-                            EvalError::Error(format!("Gave the wrong type {expr} to exit"));
-                        }
+            self.body.push(stmt.clone());
+            self.eval_stmt(stmt)?;
+        }
+        Ok(self.clone())
+    }
+
+    pub fn eval_stmt(&mut self, stmt: &Stmt) -> Result<(), EvalError> {
+        match stmt {
+            Stmt::Exit(expr) => {
+                let expr = self.eval_expr(expr)?;
+                match expr {
+                    Expr::Literal(Value::Num(n)) => exit(n as i32),
+                    _ => {
+                        return Err(EvalError::Error(format!(
+                            "Gave the wrong type {expr} to exit"
+                        )))
                     }
                 }
-                Stmt::Print(expr) => {
-                    let expr = self.eval_expr(expr)?;
-                    println!("{}", expr);
-                }
-                Stmt::Expr(expr) => {
-                    self.eval_expr(expr)?;
-                }
-                Stmt::If(cond, body) => {
-                    let cond = self.eval_expr(cond)?;
-                    if let Expr::Literal(value) = cond {
-                        if value.is_truthy() {
-                            *self = Self::eval(self, body)?.clone();
-                        }
+            }
+            Stmt::Print(expr) => {
+                let expr = self.eval_expr(expr)?;
+                println!("{}", expr);
+            }
+            Stmt::Expr(expr) => {
+                self.eval_expr(expr)?;
+            }
+            Stmt::If(cond, body) => {
+                let cond = self.eval_expr(cond)?;
+                if let Expr::Literal(value) = cond {
+                    if value.is_truthy() {
+                        *self = Self::eval(self, body)?.clone();
                     }
                 }
-                Stmt::Block(stmts) => {
-                    let old_vars = self.vars.clone();
-                    self.vars = Env::from(&Rc::new(RefCell::new(self.vars.clone())));
-                    self.vars.values = HashMap::default();
-                    *self = Self::eval(self, stmts)?.clone();
-                    self.vars = old_vars;
+            }
+            Stmt::Block(stmts) => {
+                let old_vars = self.vars.clone();
+                self.vars = Env::from(&Rc::new(RefCell::new(self.vars.clone())));
+                self.vars.values = HashMap::default();
+                *self = Self::eval(self, stmts)?.clone();
+                self.vars = old_vars;
+            }
+            Stmt::Assign(s, expr) => {
+                let expr = self.eval_expr(expr)?;
+                if let Expr::Literal(value) = expr {
+                    self.vars.define(s, value);
                 }
-                Stmt::Assign(s, expr) => {
-                    let expr = self.eval_expr(expr)?;
-                    if let Expr::Literal(value) = expr {
-                        self.vars.define(s, value);
-                    }
-                }
-                Stmt::Func(name, args, body) => self.fns.define(
-                    name,
-                    Function {
-                        args: args.to_vec(),
-                        body: body.to_vec(),
-                    },
-                ),
+            }
+            Stmt::Func(name, args, body) => self.fns.define(
+                name,
+                Function {
+                    args: args.to_vec(),
+                    body: body.to_vec(),
+                },
+            ),
+            Stmt::Return(expr) => {
+                let _ = self.eval_expr(expr)?;
             }
         }
-        self.body.extend(instructions.to_vec());
-        Ok(self.clone())
+        Ok(())
     }
 
     pub fn eval_expr(&mut self, expr: &Expr) -> Result<Expr, EvalError> {
@@ -238,8 +248,28 @@ impl VM {
                         _ => return Err(EvalError::Error("Arg was not valid".to_string())),
                     }
                 }
-                *self = Self::eval(self, &body.body)?.clone();
+                let res = self.eval_expr(&Expr::FnBody(body.body.clone()))?.clone();
                 self.vars = old_vars;
+                Ok(res)
+            }
+            Expr::FnBody(body) => {
+                for stmt in body {
+                    match stmt {
+                        Stmt::Exit(_)
+                        | Stmt::Print(_)
+                        | Stmt::Expr(_)
+                        | Stmt::If(_, _)
+                        | Stmt::Block(_)
+                        | Stmt::Assign(_, _)
+                        | Stmt::Func(_, _, _) => {
+                            self.eval_stmt(stmt);
+                        }
+                        Stmt::Return(expr) => {
+                            let expr = self.eval_expr(expr)?;
+                            return Ok(expr);
+                        }
+                    }
+                }
 
                 Ok(Expr::Literal(Value::Null))
             }

@@ -13,7 +13,7 @@ impl Optimizer {
 
     fn optimize_stmt(stmt: &Stmt) -> Stmt {
         match stmt {
-            Stmt::Exit(_) | Stmt::Block(_) | Stmt::Func(..) => stmt.clone(),
+            Stmt::Exit(_) | Stmt::Block(_) | Stmt::Func(..) | Stmt::Return(..) => stmt.clone(),
             Stmt::Print(expr) => Stmt::Print(Self::optimize_expr(expr)),
             Stmt::Expr(expr) => Stmt::Expr(Self::optimize_expr(expr)),
             Stmt::If(cond, body) => match Self::optimize_expr(cond) {
@@ -109,7 +109,7 @@ impl Optimizer {
                     _ => expr.clone(),
                 }
             }
-            Expr::Var(_) | Expr::Call(..) => expr.clone(),
+            Expr::Var(_) | Expr::Call(..) | Expr::FnBody(_) => expr.clone(),
         }
     }
 }

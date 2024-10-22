@@ -1,6 +1,6 @@
 use ir::{
-    error::EvalError, expr::Expr, optimizer::Optimizer, printer::Printer, stmt::Stmt, value::Value,
-    vm::VM,
+    error::EvalError, expr::Expr, optimizer::Optimizer, printer::Printer, serializer::Serdes,
+    stmt::Stmt, value::Value, vm::VM,
 };
 
 fn main() -> Result<(), EvalError> {
@@ -79,6 +79,10 @@ fn main() -> Result<(), EvalError> {
     let mut language = VM::default();
     println!("Optimized Program evaled");
     language.eval(&optimized_program)?;
+
+    let serded = Serdes::deserialize(&Serdes::serialize(program));
+    let printer = Printer::new(&serded);
+    println!("Serded program:\n{}", printer);
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 use ir::{
     error::EvalError, expr::Expr, optimizer::Optimizer, printer::Printer, serializer::Serdes,
-    stmt::Stmt, value::Value, vm::VM,
+    stmt::Stmt, vm::VM,
 };
 
 fn main() -> Result<(), EvalError> {

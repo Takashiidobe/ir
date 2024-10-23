@@ -72,7 +72,19 @@ fn main() -> Result<(), EvalError> {
             Stmt::Print(Expr::UnaryPlus(20.into())),
             Stmt::Print(Expr::UnaryMinus((-20).into())),
             Stmt::Print(Expr::UnaryMinus(20.into())),
-        ]), // Stmt::Exit(2.into()),
+        ]),
+        Stmt::Assign("x".to_string(), 0.into()),
+        Stmt::While(
+            Expr::EqualEqual(Expr::Var("x".to_string()).into(), 0.into()),
+            vec![
+                Stmt::Print(Expr::Var("x".into())),
+                Stmt::Assign(
+                    "x".to_string(),
+                    Expr::Add(Expr::Var("x".to_string()).into(), 1.into()),
+                ),
+            ],
+        ),
+        // Stmt::Exit(2.into()),
     ];
     let printer = Printer::new(&program);
     println!("Original Program:\n{}", printer);

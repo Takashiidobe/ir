@@ -14,6 +14,7 @@ pub enum Stmt {
     Assign(String, Expr),
     Func(String, Vec<String>, Vec<Stmt>),
     Return(Expr),
+    While(Expr, Vec<Stmt>),
 }
 
 impl fmt::Display for Stmt {
@@ -56,10 +57,20 @@ impl fmt::Display for Stmt {
                     s.push_str(&stmt.to_string());
                     s.push('\n');
                 }
-                s.push_str("}");
+                s.push('}');
                 f.write_str(&s)
             }
             Stmt::Return(expr) => f.write_fmt(format_args!("return {expr}")),
+            Stmt::While(cond, body) => {
+                let mut s = format!("while {cond} {{\n");
+                for stmt in body {
+                    s.push('\t');
+                    s.push_str(&stmt.to_string());
+                    s.push('\n');
+                }
+                s.push('}');
+                f.write_str(&s)
+            }
         }
     }
 }

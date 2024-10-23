@@ -111,7 +111,7 @@ impl VM {
                 let old_vars = self.vars.clone();
                 self.vars = Env::from(&Rc::new(RefCell::new(self.vars.clone())));
                 self.vars.values = HashMap::default();
-                *self = Self::eval(self, stmts)?.clone();
+                *self = self.eval(stmts)?.clone();
                 self.vars = old_vars;
             }
             Stmt::Assign(s, expr) => {
@@ -136,6 +136,13 @@ impl VM {
                     }
                 }
             }
+            Stmt::While(cond, body) => loop {
+                let cond = self.eval_expr(cond)?;
+                if cond == Expr::Literal(Value::Bool(false)) {
+                    break;
+                }
+                *self = self.eval(body)?.clone();
+            },
         }
         Ok(())
     }

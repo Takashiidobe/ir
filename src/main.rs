@@ -57,6 +57,7 @@ fn main() -> Result<(), EvalError> {
             "new_fn".to_string(),
             vec!["s".to_string()],
             vec![
+                Stmt::If(false.into(), vec![Stmt::Return(40.into())]),
                 Stmt::If(true.into(), vec![Stmt::Return(35.into())]),
                 Stmt::Print(Expr::Var("s".into())),
             ],
@@ -67,6 +68,10 @@ fn main() -> Result<(), EvalError> {
                 Expr::Call("new_fn".to_string(), vec![20.into()]),
             ),
             Stmt::Print(Expr::Var("y".into())),
+            Stmt::Print(Expr::UnaryPlus((-20).into())),
+            Stmt::Print(Expr::UnaryPlus(20.into())),
+            Stmt::Print(Expr::UnaryMinus((-20).into())),
+            Stmt::Print(Expr::UnaryMinus(20.into())),
         ]), // Stmt::Exit(2.into()),
     ];
     let printer = Printer::new(&program);

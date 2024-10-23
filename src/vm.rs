@@ -132,7 +132,7 @@ impl VM {
                 if self.in_fn {
                     self.return_val = match expr {
                         Expr::Literal(value) => Some(value),
-                        _ => return Err(EvalError::Error("Invalid Return".to_string())),
+                        _ => unreachable!(),
                     }
                 }
             }
@@ -276,6 +276,20 @@ impl VM {
                 self.in_fn = false;
 
                 Ok(Expr::Literal(Value::Null))
+            }
+            Expr::UnaryPlus(expr) => {
+                let expr = self.eval_expr(expr)?;
+                match expr {
+                    Expr::Literal(Value::Num(n)) => Ok(Expr::Literal(Value::Num(n.abs()))),
+                    _ => unreachable!(),
+                }
+            }
+            Expr::UnaryMinus(expr) => {
+                let expr = self.eval_expr(expr)?;
+                match expr {
+                    Expr::Literal(Value::Num(n)) => Ok(Expr::Literal(Value::Num(-n))),
+                    _ => unreachable!(),
+                }
             }
         }
     }

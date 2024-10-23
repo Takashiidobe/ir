@@ -77,7 +77,9 @@ impl Optimizer {
                     _ => expr.clone(),
                 }
             }
-            Expr::Not(expr) => Self::optimize_expr(expr),
+            Expr::Not(expr) | Expr::UnaryPlus(expr) | Expr::UnaryMinus(expr) => {
+                Self::optimize_expr(expr)
+            }
             Expr::EqualEqual(l, r) => {
                 let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
                 match (&l, &r) {

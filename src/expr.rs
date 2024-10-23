@@ -7,6 +7,8 @@ use crate::{stmt::Stmt, value::Value};
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Expr {
     Literal(Value),
+    UnaryPlus(Box<Expr>),
+    UnaryMinus(Box<Expr>),
     Add(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
     Mul(Box<Expr>, Box<Expr>),
@@ -45,6 +47,8 @@ impl fmt::Display for Expr {
                 f.write_str(&s)
             }
             Expr::FnBody(body) => f.write_fmt(format_args!("{body:?}")),
+            Expr::UnaryPlus(expr) => f.write_fmt(format_args!("+{}", expr)),
+            Expr::UnaryMinus(expr) => f.write_fmt(format_args!("-{}", expr)),
         }
     }
 }

@@ -56,7 +56,10 @@ fn main() -> Result<(), EvalError> {
         Stmt::Func(
             "new_fn".to_string(),
             vec!["s".to_string()],
-            vec![Stmt::Return(35.into()), Stmt::Print(Expr::Var("s".into()))],
+            vec![
+                Stmt::If(true.into(), vec![Stmt::Return(35.into())]),
+                Stmt::Print(Expr::Var("s".into())),
+            ],
         ),
         Stmt::Block(vec![
             Stmt::Assign(

@@ -7,6 +7,8 @@ pub struct VM {
     pub body: Vec<Stmt>,
     pub vars: Env<Value>,
     pub fns: Env<Function>,
+    pub in_fn: bool,
+    pub return_val: Option<Value>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -126,7 +128,13 @@ impl VM {
                 },
             ),
             Stmt::Return(expr) => {
-                let _ = self.eval_expr(expr)?;
+                let expr = self.eval_expr(expr)?;
+                if self.in_fn {
+                    self.return_val = match expr {
+                        Expr::Literal(value) => Some(value),
+                        _ => return Err(EvalError::Error("Invalid Return".to_string())),
+                    }
+                }
             }
         }
         Ok(())
@@ -239,7 +247,7 @@ impl VM {
                 let old_vars = self.vars.clone();
                 self.vars = Env::from(&Rc::new(RefCell::new(self.vars.clone())));
                 self.vars.values = HashMap::default();
-                for i in 0..args.len() {
+                for (i, _) in args.iter().enumerate() {
                     let arg = self.eval_expr(&args[i])?;
                     match arg {
                         Expr::Literal(value) => {
@@ -253,23 +261,19 @@ impl VM {
                 Ok(res)
             }
             Expr::FnBody(body) => {
+                self.in_fn = true;
                 for stmt in body {
-                    match stmt {
-                        Stmt::Exit(_)
-                        | Stmt::Print(_)
-                        | Stmt::Expr(_)
-                        | Stmt::If(_, _)
-                        | Stmt::Block(_)
-                        | Stmt::Assign(_, _)
-                        | Stmt::Func(_, _, _) => {
-                            self.eval_stmt(stmt);
-                        }
-                        Stmt::Return(expr) => {
-                            let expr = self.eval_expr(expr)?;
-                            return Ok(expr);
-                        }
+                    let mut ret_val: Option<Expr> = None;
+                    if let Some(saved_val) = &self.return_val {
+                        ret_val = Some(Expr::Literal(saved_val.clone()));
                     }
+                    if ret_val.is_some() {
+                        self.return_val = None;
+                        return Ok(ret_val.unwrap());
+                    }
+                    self.eval_stmt(stmt)?;
                 }
+                self.in_fn = false;
 
                 Ok(Expr::Literal(Value::Null))
             }

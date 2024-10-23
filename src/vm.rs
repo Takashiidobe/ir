@@ -210,20 +210,7 @@ impl VM {
             }
             Expr::EqualEqual(x, y) => {
                 let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
-                match (&left, &right) {
-                    (Expr::Literal(l_val), Expr::Literal(r_val)) => match (l_val, r_val) {
-                        (Value::Bool(l), Value::Bool(r)) => Ok(Expr::Literal(Value::Bool(l == r))),
-                        (Value::Num(l), Value::Num(r)) => Ok(Expr::Literal(Value::Bool(l == r))),
-                        (Value::String(l), Value::String(r)) => {
-                            Ok(Expr::Literal(Value::Bool(l == r)))
-                        }
-                        (Value::Array(l), Value::Array(r)) => {
-                            Ok(Expr::Literal(Value::Bool(l == r)))
-                        }
-                        _ => Err(EvalError::InvalidBinaryExpr(left, "==".to_string(), right)),
-                    },
-                    _ => Ok(Expr::Literal(Value::Bool(false))),
-                }
+                Ok((left == right).into())
             }
             Expr::And(x, y) => {
                 let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
@@ -297,6 +284,26 @@ impl VM {
                     Expr::Literal(Value::Num(n)) => Ok(Expr::Literal(Value::Num(-n))),
                     _ => unreachable!(),
                 }
+            }
+            Expr::NotEqual(x, y) => {
+                let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
+                Ok((left != right).into())
+            }
+            Expr::LessThan(x, y) => {
+                let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
+                Ok((left < right).into())
+            }
+            Expr::LessThanEqual(x, y) => {
+                let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
+                Ok((left <= right).into())
+            }
+            Expr::GreaterThan(x, y) => {
+                let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
+                Ok((left > right).into())
+            }
+            Expr::GreaterThanEqual(x, y) => {
+                let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
+                Ok((left >= right).into())
             }
         }
     }

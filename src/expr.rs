@@ -14,7 +14,12 @@ pub enum Expr {
     Mul(Box<Expr>, Box<Expr>),
     Div(Box<Expr>, Box<Expr>),
     Not(Box<Expr>),
+    NotEqual(Box<Expr>, Box<Expr>),
     EqualEqual(Box<Expr>, Box<Expr>),
+    LessThan(Box<Expr>, Box<Expr>),
+    LessThanEqual(Box<Expr>, Box<Expr>),
+    GreaterThan(Box<Expr>, Box<Expr>),
+    GreaterThanEqual(Box<Expr>, Box<Expr>),
     And(Box<Expr>, Box<Expr>),
     Or(Box<Expr>, Box<Expr>),
     Var(String),
@@ -32,6 +37,11 @@ impl fmt::Display for Expr {
             Expr::Div(x, y) => f.write_fmt(format_args!("{} / {}", x, y)),
             Expr::Not(val) => f.write_fmt(format_args!("!{}", val)),
             Expr::EqualEqual(x, y) => f.write_fmt(format_args!("{} == {}", x, y)),
+            Expr::NotEqual(x, y) => f.write_fmt(format_args!("{} != {}", x, y)),
+            Expr::LessThan(x, y) => f.write_fmt(format_args!("{} < {}", x, y)),
+            Expr::LessThanEqual(x, y) => f.write_fmt(format_args!("{} <= {}", x, y)),
+            Expr::GreaterThan(x, y) => f.write_fmt(format_args!("{} > {}", x, y)),
+            Expr::GreaterThanEqual(x, y) => f.write_fmt(format_args!("{} >= {}", x, y)),
             Expr::And(x, y) => f.write_fmt(format_args!("{} && {}", x, y)),
             Expr::Or(x, y) => f.write_fmt(format_args!("{} || {}", x, y)),
             Expr::Var(name) => f.write_str(name),
@@ -43,7 +53,7 @@ impl fmt::Display for Expr {
                 }
                 s.pop();
                 s.pop();
-                s.push_str(")");
+                s.push(')');
                 f.write_str(&s)
             }
             Expr::FnBody(body) => f.write_fmt(format_args!("{body:?}")),

@@ -75,7 +75,7 @@ fn main() -> Result<(), EvalError> {
         ]),
         Stmt::Assign("x".to_string(), 0.into()),
         Stmt::While(
-            Expr::EqualEqual(Expr::Var("x".to_string()).into(), 0.into()),
+            Expr::LessThan(Expr::Var("x".to_string()).into(), 5.into()),
             vec![
                 Stmt::Print(Expr::Var("x".into())),
                 Stmt::Assign(

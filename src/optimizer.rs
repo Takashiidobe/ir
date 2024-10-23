@@ -82,16 +82,27 @@ impl Optimizer {
             }
             Expr::EqualEqual(l, r) => {
                 let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
-                match (&l, &r) {
-                    (Expr::Literal(l_val), Expr::Literal(r_val)) => match (l_val, r_val) {
-                        (Value::Bool(l), Value::Bool(r)) => Expr::Literal(Value::Bool(l == r)),
-                        (Value::Num(l), Value::Num(r)) => Expr::Literal(Value::Bool(l == r)),
-                        (Value::String(l), Value::String(r)) => Expr::Literal(Value::Bool(l == r)),
-                        (Value::Array(l), Value::Array(r)) => Expr::Literal(Value::Bool(l == r)),
-                        _ => expr.clone(),
-                    },
-                    _ => expr.clone(),
-                }
+                Expr::Literal((l == r).into())
+            }
+            Expr::NotEqual(l, r) => {
+                let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
+                Expr::Literal((l != r).into())
+            }
+            Expr::LessThan(l, r) => {
+                let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
+                Expr::Literal((l < r).into())
+            }
+            Expr::LessThanEqual(l, r) => {
+                let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
+                Expr::Literal((l <= r).into())
+            }
+            Expr::GreaterThan(l, r) => {
+                let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
+                Expr::Literal((l > r).into())
+            }
+            Expr::GreaterThanEqual(l, r) => {
+                let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));
+                Expr::Literal((l >= r).into())
             }
             Expr::And(l, r) => {
                 let (l, r) = (Self::optimize_expr(l), Self::optimize_expr(r));

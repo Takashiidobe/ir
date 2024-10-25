@@ -100,7 +100,12 @@ fn main() -> Result<(), EvalError> {
     println!("Optimized Program evaled");
     language.eval(&optimized_program)?;
 
-    let serded = Serdes::deserialize(&Serdes::serialize(program));
+    let serialized = Serdes::serialize(program);
+    std::fs::write("./a.out", &serialized).unwrap();
+
+    let serialized = std::fs::read("./a.out").unwrap();
+
+    let serded = Serdes::deserialize(&serialized);
     let printer = Printer::new(&serded);
     println!("Serded program:\n{}", printer);
 

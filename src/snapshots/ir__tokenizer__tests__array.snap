@@ -1,0 +1,26 @@
+---
+source: src/tokenizer.rs
+expression: res
+---
+- loc:
+    line: 1
+    col: 1
+  token: LeftSquare
+- loc:
+    line: 1
+    col: 1
+  token:
+    Number: 1
+- loc:
+    line: 1
+    col: 2
+  token: Comma
+- loc:
+    line: 1
+    col: 1
+  token:
+    Number: 2
+- loc:
+    line: 1
+    col: 2
+  token: RightSquare

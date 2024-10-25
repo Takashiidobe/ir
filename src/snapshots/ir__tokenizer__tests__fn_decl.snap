@@ -1,0 +1,41 @@
+---
+source: src/tokenizer.rs
+expression: res
+---
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Fn
+- loc:
+    line: 1
+    col: 4
+  token:
+    Identifier: incr
+- loc:
+    line: 1
+    col: 9
+  token:
+    Identifier: i
+- loc:
+    line: 1
+    col: 1
+  token: LeftSquiggly
+- loc:
+    line: 1
+    col: 1
+  token:
+    Identifier: i
+- loc:
+    line: 1
+    col: 3
+  token: AddAssign
+- loc:
+    line: 1
+    col: 1
+  token:
+    Number: 1
+- loc:
+    line: 1
+    col: 1
+  token: RightSquiggly

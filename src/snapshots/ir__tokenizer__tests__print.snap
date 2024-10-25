@@ -1,0 +1,18 @@
+---
+source: src/tokenizer.rs
+expression: res
+---
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Print
+- loc:
+    line: 1
+    col: 7
+  token:
+    Number: 1
+- loc:
+    line: 1
+    col: 8
+  token: Semicolon

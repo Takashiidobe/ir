@@ -1,0 +1,141 @@
+---
+source: src/tokenizer.rs
+expression: res
+---
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: If
+- loc:
+    line: 1
+    col: 4
+  token: LeftParen
+- loc:
+    line: 1
+    col: 4
+  token:
+    Identifier: x
+- loc:
+    line: 1
+    col: 6
+  token: LeftAngle
+- loc:
+    line: 1
+    col: 1
+  token:
+    Number: 10
+- loc:
+    line: 1
+    col: 3
+  token: RightParen
+- loc:
+    line: 1
+    col: 1
+  token: LeftSquiggly
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Print
+- loc:
+    line: 1
+    col: 7
+  token:
+    Number: 10
+- loc:
+    line: 1
+    col: 9
+  token: RightParen
+- loc:
+    line: 1
+    col: 9
+  token: Semicolon
+- loc:
+    line: 1
+    col: 1
+  token: RightSquiggly
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: ElseIf
+- loc:
+    line: 1
+    col: 6
+  token: LeftParen
+- loc:
+    line: 1
+    col: 6
+  token:
+    Identifier: x
+- loc:
+    line: 1
+    col: 8
+  token: LeftAngle
+- loc:
+    line: 1
+    col: 1
+  token:
+    Number: 20
+- loc:
+    line: 1
+    col: 3
+  token: RightParen
+- loc:
+    line: 1
+    col: 1
+  token: LeftSquiggly
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Print
+- loc:
+    line: 1
+    col: 7
+  token:
+    Number: 20
+- loc:
+    line: 1
+    col: 9
+  token: RightParen
+- loc:
+    line: 1
+    col: 9
+  token: Semicolon
+- loc:
+    line: 1
+    col: 1
+  token: RightSquiggly
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Else
+- loc:
+    line: 1
+    col: 6
+  token: LeftSquiggly
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Print
+- loc:
+    line: 1
+    col: 7
+  token:
+    Number: 30
+- loc:
+    line: 1
+    col: 9
+  token: RightParen
+- loc:
+    line: 1
+    col: 9
+  token: Semicolon
+- loc:
+    line: 1
+    col: 1
+  token: RightSquiggly

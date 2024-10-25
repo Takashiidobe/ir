@@ -1,0 +1,27 @@
+---
+source: src/tokenizer.rs
+expression: res
+---
+- loc:
+    line: 1
+    col: 1
+  token:
+    Keyword: Let
+- loc:
+    line: 1
+    col: 5
+  token:
+    Identifier: x
+- loc:
+    line: 1
+    col: 7
+  token: Equal
+- loc:
+    line: 1
+    col: 1
+  token:
+    Number: 10
+- loc:
+    line: 1
+    col: 3
+  token: Semicolon

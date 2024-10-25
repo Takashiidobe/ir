@@ -1,0 +1,22 @@
+---
+source: src/tokenizer.rs
+expression: res
+---
+- loc:
+    line: 1
+    col: 1
+  token:
+    Identifier: incr
+- loc:
+    line: 1
+    col: 6
+  token:
+    Number: 10
+- loc:
+    line: 1
+    col: 8
+  token: RightParen
+- loc:
+    line: 1
+    col: 8
+  token: Semicolon

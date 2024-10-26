@@ -1,0 +1,28 @@
+---
+source: src/bytecode.rs
+expression: compiler.compile(&ast)
+---
+- Literal:
+    Num: 1
+- Literal:
+    Num: 2
+- Add
+- Literal:
+    Num: 3
+- Literal:
+    Num: 4
+- Add
+- Add
+- Print
+- Literal:
+    Num: 10
+- Literal:
+    Num: 0
+- Sub
+- Literal:
+    Num: 5
+- Literal:
+    Num: 0
+- Sub
+- Sub
+- Print

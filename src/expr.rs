@@ -1,9 +1,12 @@
 use std::fmt;
 
+#[cfg(test)]
+use arbitrary::Arbitrary;
 use serde::{Deserialize, Serialize};
 
 use crate::{stmt::Stmt, value::Value};
 
+#[cfg_attr(test, derive(Arbitrary))]
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Expr {
     Literal(Value),

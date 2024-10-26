@@ -1,9 +1,12 @@
 use std::fmt;
 
+#[cfg(test)]
+use arbitrary::Arbitrary;
 use serde::{Deserialize, Serialize};
 
 use crate::expr::Expr;
 
+#[cfg_attr(test, derive(Arbitrary))]
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Value {
     Bool(bool),

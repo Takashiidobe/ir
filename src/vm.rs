@@ -309,7 +309,7 @@ impl VM {
                 let incr = self.eval_expr(incr)?;
                 let count = match incr {
                     Expr::Literal(Value::Num(n)) => n,
-                    _ => unreachable!(),
+                    _ => unreachable!(), // crashes currently, have to handle properly.
                 };
                 match **var {
                     Expr::Var(ref name) => match self.vars.get(&name) {
@@ -326,5 +326,23 @@ impl VM {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{stmt::Stmt, vm::VM};
+    use arbtest::arbtest;
+
+    #[test]
+    fn no_crash() {
+        arbtest(|input| {
+            let stmts: Vec<Stmt> = input.arbitrary()?;
+            let mut vm = VM::default();
+            match vm.eval(&stmts) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(arbitrary::Error::NotEnoughData),
+            }
+        });
     }
 }

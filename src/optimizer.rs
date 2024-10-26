@@ -122,7 +122,7 @@ impl Optimizer {
                     _ => expr.clone(),
                 }
             }
-            Expr::Var(_) | Expr::Call(..) | Expr::FnBody(_) => expr.clone(),
+            Expr::Var(_) | Expr::Call(..) | Expr::FnBody(_) | _ => expr.clone(),
         }
     }
 }

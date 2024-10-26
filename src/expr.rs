@@ -10,6 +10,7 @@ pub enum Expr {
     UnaryPlus(Box<Expr>),
     UnaryMinus(Box<Expr>),
     Add(Box<Expr>, Box<Expr>),
+    AddAssign(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
     Mul(Box<Expr>, Box<Expr>),
     Div(Box<Expr>, Box<Expr>),
@@ -59,6 +60,7 @@ impl fmt::Display for Expr {
             Expr::FnBody(body) => f.write_fmt(format_args!("{body:?}")),
             Expr::UnaryPlus(expr) => f.write_fmt(format_args!("+{}", expr)),
             Expr::UnaryMinus(expr) => f.write_fmt(format_args!("-{}", expr)),
+            Expr::AddAssign(target, incr) => f.write_fmt(format_args!("{} += {}", target, incr)),
         }
     }
 }

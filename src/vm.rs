@@ -305,6 +305,26 @@ impl VM {
                 let (left, right) = (self.eval_expr(x)?, self.eval_expr(y)?);
                 Ok((left >= right).into())
             }
+            Expr::AddAssign(var, incr) => {
+                let incr = self.eval_expr(incr)?;
+                let count = match incr {
+                    Expr::Literal(Value::Num(n)) => n,
+                    _ => unreachable!(),
+                };
+                match **var {
+                    Expr::Var(ref name) => match self.vars.get(&name) {
+                        Ok(val) => match val {
+                            Value::Num(n) => {
+                                self.vars.define(&name, Value::Num(n + count));
+                                Ok(Expr::Literal(self.vars.get(&name)?))
+                            }
+                            _ => unreachable!(),
+                        },
+                        Err(e) => Err(e),
+                    },
+                    _ => todo!(),
+                }
+            }
         }
     }
 }

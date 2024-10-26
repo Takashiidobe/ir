@@ -34,57 +34,37 @@ fn main() -> Result<(), EvalError> {
         //     Box::new(Expr::Literal(Value::Num(5.into()))),
         //     Box::new(Expr::Add(3.into(), 2.into())),
         // )),
-        Stmt::Assign("x".to_string(), Expr::Add(3.into(), 2.into())),
-        Stmt::Print(Expr::Var("x".into())),
-        Stmt::Assign(
-            "x".to_string(),
-            Expr::Add(Box::new(Expr::Var("x".into())), 2.into()),
-        ),
-        Stmt::Print(Expr::Var("x".into())),
-        Stmt::Block(vec![
-            Stmt::Print(Expr::Var("x".into())),
-            Stmt::Assign("x".to_string(), "hi".into()),
-            Stmt::Print(Expr::Var("x".into())),
-            Stmt::Block(vec![
-                Stmt::Print(Expr::Var("x".into())),
-                Stmt::Assign("x".to_string(), "hello".into()),
-                Stmt::Print(Expr::Var("x".into())),
-            ]),
-            Stmt::Print(Expr::Var("x".into())),
-        ]),
-        Stmt::Print(Expr::Var("x".into())),
+        // Stmt::Assign("x".to_string(), Expr::Add(3.into(), 2.into())),
+        // Stmt::Print(Expr::Var("x".into())),
+        // Stmt::Assign(
+        //     "x".to_string(),
+        //     Expr::Add(Box::new(Expr::Var("x".into())), 2.into()),
+        // ),
+        // Stmt::Print(Expr::Var("x".into())),
+        // Stmt::Block(vec![
+        //     Stmt::Print(Expr::Var("x".into())),
+        //     Stmt::Assign("x".to_string(), "hi".into()),
+        //     Stmt::Print(Expr::Var("x".into())),
+        //     Stmt::Block(vec![
+        //         Stmt::Print(Expr::Var("x".into())),
+        //         Stmt::Assign("x".to_string(), "hello".into()),
+        //         Stmt::Print(Expr::Var("x".into())),
+        //     ]),
+        //     Stmt::Print(Expr::Var("x".into())),
+        // ]),
         Stmt::Func(
             "new_fn".to_string(),
-            vec!["s".to_string()],
-            vec![
-                Stmt::If(false.into(), vec![Stmt::Return(40.into())]),
-                Stmt::If(true.into(), vec![Stmt::Return(35.into())]),
-                Stmt::Print(Expr::Var("s".into())),
-            ],
+            vec!["x".to_string()],
+            vec![Stmt::If(
+                Expr::LessThanEqual(Expr::Var("x".into()).into(), 3.into()),
+                vec![
+                    Stmt::Print(Expr::Var("x".into())),
+                    Stmt::Expr(Expr::AddAssign(Expr::Var("x".into()).into(), 1.into())),
+                    Stmt::Expr(Expr::Call("new_fn".into(), vec![Expr::Var("x".into())])),
+                ],
+            )],
         ),
-        Stmt::Block(vec![
-            Stmt::Assign(
-                "y".to_string(),
-                Expr::Call("new_fn".to_string(), vec![20.into()]),
-            ),
-            Stmt::Print(Expr::Var("y".into())),
-            Stmt::Print(Expr::UnaryPlus((-20).into())),
-            Stmt::Print(Expr::UnaryPlus(20.into())),
-            Stmt::Print(Expr::UnaryMinus((-20).into())),
-            Stmt::Print(Expr::UnaryMinus(20.into())),
-        ]),
-        Stmt::Assign("x".to_string(), 0.into()),
-        Stmt::While(
-            Expr::LessThan(Expr::Var("x".to_string()).into(), 5.into()),
-            vec![
-                Stmt::Print(Expr::Var("x".into())),
-                Stmt::Assign(
-                    "x".to_string(),
-                    Expr::Add(Expr::Var("x".to_string()).into(), 1.into()),
-                ),
-            ],
-        ),
-        // Stmt::Exit(2.into()),
+        Stmt::Print(Expr::Call("new_fn".to_string(), vec![0.into()])),
     ];
     let printer = Printer::new(&program);
     println!("Original Program:\n{}", printer);
@@ -100,14 +80,14 @@ fn main() -> Result<(), EvalError> {
     println!("Optimized Program evaled");
     language.eval(&optimized_program)?;
 
-    let serialized = Serdes::serialize(program);
-    std::fs::write("./a.out", &serialized).unwrap();
+    // let serialized = Serdes::serialize(program);
+    // std::fs::write("./a.out", &serialized).unwrap();
 
-    let serialized = std::fs::read("./a.out").unwrap();
+    // let serialized = std::fs::read("./a.out").unwrap();
 
-    let serded = Serdes::deserialize(&serialized);
-    let printer = Printer::new(&serded);
-    println!("Serded program:\n{}", printer);
+    // let serded = Serdes::deserialize(&serialized);
+    // let printer = Printer::new(&serded);
+    // println!("Serded program:\n{}", printer);
 
     Ok(())
 }

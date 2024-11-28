@@ -1,0 +1,6 @@
+---
+source: src/vm.rs
+assertion_line: 348
+expression: vm.eval(&stmts).unwrap().return_val
+---
+~

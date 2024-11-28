@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, process::exit};
 
 use serde::{Deserialize, Serialize};
 
@@ -9,6 +9,11 @@ pub enum Bytecode {
     Print,
     Add,
     Sub,
+    Mul,
+    Div,
+    UnaryPlus,
+    UnaryMinus,
+    Exit,
     Literal(Value),
 }
 
@@ -24,7 +29,17 @@ impl Compiler {
                     bytecode.extend(Self::eval_expr(expr));
                     bytecode.push(Bytecode::Print);
                 }
-                _ => todo!(),
+                Stmt::Exit(expr) => {
+                    bytecode.extend(Self::eval_expr(expr));
+                    bytecode.push(Bytecode::Exit);
+                }
+                Stmt::Expr(expr) => bytecode.extend(Self::eval_expr(expr)),
+                Stmt::If(_, _) => todo!(),
+                Stmt::Block(_) => todo!(),
+                Stmt::Assign(_, _) => todo!(),
+                Stmt::Func(_, _, _) => todo!(),
+                Stmt::Return(_) => todo!(),
+                Stmt::While(_, _) => todo!(),
             }
         }
         bytecode
@@ -33,22 +48,40 @@ impl Compiler {
     fn eval_expr(expr: &Expr) -> Vec<Bytecode> {
         match expr {
             Expr::Literal(value) => vec![Bytecode::Literal(value.clone())],
-            Expr::Add(x, y) => {
-                let mut res = vec![];
-                res.extend(Self::eval_expr(x));
-                res.extend(Self::eval_expr(y));
-                res.push(Bytecode::Add);
-                res
-            }
-            Expr::Sub(x, y) => {
-                let mut res = vec![];
-                res.extend(Self::eval_expr(x));
-                res.extend(Self::eval_expr(y));
-                res.push(Bytecode::Sub);
-                res
-            }
-            _ => todo!(),
+            Expr::Add(x, y) => Self::bin_op(x, y, Bytecode::Add),
+            Expr::Sub(x, y) => Self::bin_op(x, y, Bytecode::Sub),
+            Expr::Mul(x, y) => Self::bin_op(x, y, Bytecode::Mul),
+            Expr::Div(x, y) => Self::bin_op(x, y, Bytecode::Div),
+            Expr::UnaryPlus(x) => Self::unary_op(x, Bytecode::UnaryPlus),
+            Expr::UnaryMinus(x) => Self::unary_op(x, Bytecode::UnaryMinus),
+            Expr::AddAssign(_, _) => todo!(),
+            Expr::Not(_) => todo!(),
+            Expr::NotEqual(_, _) => todo!(),
+            Expr::EqualEqual(_, _) => todo!(),
+            Expr::LessThan(_, _) => todo!(),
+            Expr::LessThanEqual(_, _) => todo!(),
+            Expr::GreaterThan(_, _) => todo!(),
+            Expr::GreaterThanEqual(_, _) => todo!(),
+            Expr::And(_, _) => todo!(),
+            Expr::Or(_, _) => todo!(),
+            Expr::Var(_) => todo!(),
+            Expr::Call(_, _) => todo!(),
+            Expr::FnBody(_) => todo!(),
         }
+    }
+
+    fn bin_op(x: &Expr, y: &Expr, bc: Bytecode) -> Vec<Bytecode> {
+        let mut res = vec![];
+        res.extend(Self::eval_expr(x));
+        res.extend(Self::eval_expr(y));
+        res.push(bc);
+        res
+    }
+    fn unary_op(x: &Expr, bc: Bytecode) -> Vec<Bytecode> {
+        let mut res = vec![];
+        res.extend(Self::eval_expr(x));
+        res.push(bc);
+        res
     }
 }
 
@@ -66,6 +99,16 @@ impl<W: std::io::Write> VM<W> {
         }
     }
 
+    fn pop_two(&mut self) -> (Value, Value) {
+        let y = self.stack.pop().expect("No item to add on stack");
+        let x = self.stack.pop().expect("No item to add on stack");
+        (x, y)
+    }
+
+    fn pop(&mut self) -> Value {
+        self.stack.pop().expect("No item to add on stack")
+    }
+
     pub fn eval(&mut self, bytecodes: &[Bytecode]) -> Result<(), Box<dyn Error>> {
         for bc in bytecodes {
             match bc {
@@ -78,8 +121,7 @@ impl<W: std::io::Write> VM<W> {
                     }
                 }
                 Bytecode::Add => {
-                    let y = self.stack.pop().expect("No item to add on stack");
-                    let x = self.stack.pop().expect("No item to add on stack");
+                    let (x, y) = self.pop_two();
                     match (x, y) {
                         (Value::Num(x), Value::Num(y)) => {
                             self.stack.push(Value::Num(x + y));
@@ -92,8 +134,7 @@ impl<W: std::io::Write> VM<W> {
                     }
                 }
                 Bytecode::Sub => {
-                    let y = self.stack.pop().expect("No item to sub on stack");
-                    let x = self.stack.pop().expect("No item to sub on stack");
+                    let (x, y) = self.pop_two();
                     match (x, y) {
                         (Value::Num(x), Value::Num(y)) => {
                             self.stack.push(Value::Num(x - y));
@@ -101,7 +142,50 @@ impl<W: std::io::Write> VM<W> {
                         _ => panic!("Cannot sub operands"),
                     }
                 }
+                Bytecode::Mul => {
+                    let (x, y) = self.pop_two();
+                    match (x, y) {
+                        (Value::Num(x), Value::Num(y)) => {
+                            self.stack.push(Value::Num(x * y));
+                        }
+                        _ => panic!("Cannot mul operands"),
+                    }
+                }
+                Bytecode::Div => {
+                    let (x, y) = self.pop_two();
+                    match (x, y) {
+                        (Value::Num(x), Value::Num(y)) => {
+                            self.stack.push(Value::Num(x / y));
+                        }
+                        _ => panic!("Cannot div operands"),
+                    }
+                }
+                Bytecode::UnaryPlus => {
+                    let x = self.pop();
+                    match x {
+                        Value::Num(x) => {
+                            self.stack.push(Value::Num(x.abs()));
+                        }
+                        _ => panic!("Cannot pos operand"),
+                    }
+                }
+                Bytecode::UnaryMinus => {
+                    let x = self.pop();
+                    match x {
+                        Value::Num(x) => {
+                            self.stack.push(Value::Num(-x));
+                        }
+                        _ => panic!("Cannot negate operand"),
+                    }
+                }
                 Bytecode::Literal(value) => self.stack.push(value.clone()),
+                Bytecode::Exit => {
+                    let x = self.pop();
+                    match x {
+                        Value::Num(n) => exit(n as i32),
+                        _ => panic!("Cannot exit with non-number."),
+                    }
+                }
             }
         }
         Ok(())

@@ -275,14 +275,18 @@ impl VM {
                 let expr = self.eval_expr(expr)?;
                 match expr {
                     Expr::Literal(Value::Num(n)) => Ok(Expr::Literal(Value::Num(n.abs()))),
-                    _ => unreachable!(),
+                    _ => Err(EvalError::Error(
+                        "Unary plus can only be applied to numbers".to_string(),
+                    )),
                 }
             }
             Expr::UnaryMinus(expr) => {
                 let expr = self.eval_expr(expr)?;
                 match expr {
                     Expr::Literal(Value::Num(n)) => Ok(Expr::Literal(Value::Num(-n))),
-                    _ => unreachable!(),
+                    _ => Err(EvalError::Error(
+                        "Unary minus can only be applied to numbers".to_string(),
+                    )),
                 }
             }
             Expr::NotEqual(x, y) => {
@@ -308,21 +312,23 @@ impl VM {
             Expr::AddAssign(var, incr) => {
                 let incr = self.eval_expr(incr)?;
                 let count = match incr {
-                    Expr::Literal(Value::Num(n)) => n,
-                    _ => unreachable!(), // crashes currently, have to handle properly.
+                    Expr::Literal(Value::Num(n)) => Ok(n),
+                    _ => Err(EvalError::Error(
+                        "Add Assign can only be applied to numbers".to_string(),
+                    )),
                 };
                 match **var {
-                    Expr::Var(ref name) => match self.vars.get(&name) {
+                    Expr::Var(ref name) => match self.vars.get(name) {
                         Ok(val) => match val {
                             Value::Num(n) => {
-                                self.vars.define(&name, Value::Num(n + count));
-                                Ok(Expr::Literal(self.vars.get(&name)?))
+                                self.vars.define(name, Value::Num(n + count?));
+                                Ok(Expr::Literal(self.vars.get(name)?))
                             }
-                            _ => unreachable!(),
+                            _ => Err(EvalError::Error("Could not find variable".to_string())),
                         },
                         Err(e) => Err(e),
                     },
-                    _ => todo!(),
+                    _ => unreachable!(),
                 }
             }
         }
@@ -333,6 +339,14 @@ impl VM {
 mod test {
     use crate::{stmt::Stmt, vm::VM};
     use arbtest::arbtest;
+    use insta::assert_yaml_snapshot as test;
+
+    #[test]
+    fn test_if() {
+        let stmts: Vec<Stmt> = vec![Stmt::Print(20.into())];
+        let mut vm = VM::default();
+        test!(vm.eval(&stmts).unwrap().return_val)
+    }
 
     #[test]
     fn no_crash() {
